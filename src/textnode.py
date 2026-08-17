@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 
 from htmlnode import LeafNode
@@ -12,12 +13,12 @@ class TextType(Enum):
     CODE = "code"
 
 class TextNode:
-    def __init__(self, text, type, url=None):
-        self.text = text
-        self.text_type = TextType(type)
-        self.url = url
+    def __init__(self, text: str, type: TextType|str, url: str|None=None):
+        self.text: str = text
+        self.text_type: TextType = TextType(type)
+        self.url: str|None = url
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.text == other.text and self.text_type == other.text_type and self.url == other.url
 
     def __repr__(self):
@@ -40,7 +41,7 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
         case TextType.CODE:
             tag = "code"
         case _:
-           raise Exception ("Invalid type")  # noqa: TRY002
+            raise Exception ("Invalid type")  # noqa: TRY002
 
     pps = None
     match tag:
@@ -60,3 +61,11 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
 
 
     return a
+
+def extract_markdown_images(text: str)-> list[tuple[str,str]]:
+    images = re.findall(r"\!\[([^\[\]]*)\]\((.*?)\)", text)
+    return images
+
+def extract_markdown_links(text: str)-> list[tuple[str,str]]:
+    links = re.findall(r"(?<!\!)\[([^\[\]]*)\]\((.*?)\)", text)
+    return links
