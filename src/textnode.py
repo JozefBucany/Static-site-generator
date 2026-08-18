@@ -63,9 +63,39 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     return a
 
 def extract_markdown_images(text: str)-> list[tuple[str,str]]:
-    images = re.findall(r"\!\[([^\[\]]*)\]\((.*?)\)", text)
+    images = re.findall(r"\!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return images
 
 def extract_markdown_links(text: str)-> list[tuple[str,str]]:
-    links = re.findall(r"(?<!\!)\[([^\[\]]*)\]\((.*?)\)", text)
+    links = re.findall(r"(?<!\!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return links
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    x=[]
+    for item in old_nodes:
+        if item.text_type != TextType.TEXT:
+            x.append(item)
+        else:
+            delims = extract_markdown_images(item.text)
+            for delim in delims:
+                x.append(TextNode(item.text.split("!["+delim[0])[0], TextType.TEXT))
+                x.append(TextNode(delim[0], TextType.IMAGE, delim[1]))
+                item.text = item.text.split(delim[1]+")")[1]
+            if len(item.text) > 0:
+                x.append(TextNode(item.text, TextType.TEXT))
+    return x
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    x=[]
+    for item in old_nodes:
+        if item.text_type != TextType.TEXT:
+            x.append(item)
+        else:
+            delims = extract_markdown_links(item.text)
+            for delim in delims:
+                x.append(TextNode(item.text.split("["+delim[0])[0], TextType.TEXT))
+                x.append(TextNode(delim[0], TextType.LINK, delim[1]))
+                item.text = item.text.split(delim[1]+")")[1]
+            if len(item.text) > 0:
+                x.append(TextNode(item.text, TextType.TEXT))
+    return x
