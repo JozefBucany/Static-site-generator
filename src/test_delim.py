@@ -1,4 +1,4 @@
-from splitdelim import split_nodes_delimiter
+from splitdelim import markdown_to_blocks, split_nodes_delimiter
 from textnode import TextNode, TextType
 
 node = TextNode("This is a text and 'this is a code' inside text", TextType.TEXT)
@@ -30,3 +30,11 @@ xxx = split_nodes_delimiter(xxx, "'", TextType.CODE)
 
 for item in xxx:
     print(item)
+
+print("\n")
+
+text = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and _italic_ words inside of it.\n\n- This is the first list item in a list block'n- This is a list item\n- This is another list item"
+for item in markdown_to_blocks(text):
+    print(item)
+
+print("\n")

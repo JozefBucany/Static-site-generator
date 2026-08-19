@@ -1,6 +1,6 @@
 import unittest
 
-from splitdelim import text_to_textnodes
+from splitdelim import BlockType, block_to_block_type, markdown_to_blocks, text_to_textnodes
 from textnode import (
     TextNode,
     TextType,
@@ -131,6 +131,47 @@ class TestTextNode(unittest.TestCase):
         for item in y:
             print(item)
 
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_block_to_block_type(self):
+        md1 = "This is **bolded** paragraph"
+        md2 = "#This is another paragraph with _italic_ text and `code` here"
+        md3 = "```This is the same paragraph on a new line"
+        md4 = "- This is another paragraph with _italic_ text and `code` here\n- This is the same paragraph on a new line"
+        md5 = "9. This is another paragraph with _italic_ text and `code` here\n12. This is the same paragraph on a new line"
+        md6 = "> This is **bolded** paragraph"
+
+        blocks1 = block_to_block_type(md1)
+        blocks2 = block_to_block_type(md2)
+        blocks3 = block_to_block_type(md3)
+        blocks4 = block_to_block_type(md4)
+        blocks5 = block_to_block_type(md5)
+        blocks6 = block_to_block_type(md6)
+
+        self.assertEqual(blocks1, BlockType.PARAGRAPH)
+        self.assertEqual(blocks2, BlockType.HEADING)
+        self.assertEqual(blocks3, BlockType.CODE)
+        self.assertEqual(blocks4, BlockType.UNORDERED_LIST)
+        self.assertEqual(blocks5, BlockType.ORDERED_LIST)
+        self.assertEqual(blocks6, BlockType.QUOTE)
 
 if __name__ == "__main__":
     unittest.main()
