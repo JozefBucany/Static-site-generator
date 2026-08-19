@@ -1,7 +1,8 @@
+from pydoc import text
 import re
 from enum import Enum
 
-from htmlnode import LeafNode
+from htmlnode import LeafNode, ParentNode
 
 
 class TextType(Enum):
@@ -55,7 +56,7 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
             pps["alt"] = text_node.text
             a = LeafNode(tag, "", pps)
         case "code":
-            a = LeafNode(None, f"'{text_node.text}'")
+            a = LeafNode(tag, text_node.text)
         case _:
             a = LeafNode(tag, text_node.text)
 

@@ -30,7 +30,7 @@ class LeafNode(HTMLNode):
         return self.tag == other.tag and self.value == other.value and self.props == other.props
 
     def __repr__(self):
-       return f"HTMLNode({self.tag}, {self.value}, {self.props})"
+       return f"LeafNode({self.tag}, {self.value}, {self.props})"
 
     def to_html(self):
         if self.value is None:

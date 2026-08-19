@@ -1,8 +1,16 @@
+from enum import Enum
 from locale import CODESET
 from pickle import LIST
 
-from textnode import TextNode, TextType, split_nodes_image, split_nodes_link
-from enum import Enum
+from htmlnode import HTMLNode, LeafNode, ParentNode
+from textnode import (
+    TextNode,
+    TextType,
+    split_nodes_image,
+    split_nodes_link,
+    text_node_to_html_node,
+)
+
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -74,3 +82,119 @@ def block_to_block_type(block:str):
         if result and temp[len(temp)-1] == ".":
             return BlockType.ORDERED_LIST
         return BlockType.PARAGRAPH
+
+
+def markdown_to_html_node(markdown:str):
+    result = ParentNode("div", [])
+    x = markdown_to_blocks(markdown)
+    for item in x:
+        type = block_to_block_type(item)
+
+        match(type):
+            case BlockType.PARAGRAPH:
+                temp = ""
+                for a in item.split("\n"):
+                    temp += a+" "
+                temp = temp.rstrip(" ")
+                xx = LeafNode("p", temp)
+                xxx= []
+                xx.value = text_to_textnodes(xx.value)
+                for a in xx.value:
+                   xxx.append(text_node_to_html_node(a))
+                xx.value = ""
+                for a in xxx:
+                    xx.value += a.to_html()
+                xx.value = xx.value.rstrip()
+
+            case BlockType.HEADING:
+                temp = ""
+                for a in item.split("\n"):
+                    temp += a+" "
+                temp = temp.rstrip(" ")
+                s = 0
+                for i in range (len(item)):
+                    if item[i] == "#":
+                        s += 1
+                    if i == 5:
+                        break
+                temp = f"<h{s}>" +temp[s:]+f"</h{s}>"
+                xx = LeafNode("p", temp)
+                xxx= []
+                xx.value = text_to_textnodes(xx.value)
+                for a in xx.value:
+                   xxx.append(text_node_to_html_node(a))
+                xx.value = ""
+                for a in xxx:
+                    xx.value += a.to_html()
+                xx.value = xx.value.rstrip()
+
+            case BlockType.CODE:
+                temp = ""
+                for a in item.split("\n"):
+                    if a != "```":
+                        temp += a+"\n"
+                temp = "<code>"+temp+"</code>"
+                xx = LeafNode("pre", temp)
+
+            case BlockType.QUOTE:
+                temp = ""
+                for a in item.split("\n"):
+                    temp += a[1:]+" "
+                temp = temp.rstrip(" ")
+                s = 0
+                for i in range (len(item)):
+                    if item[i] == "#":
+                        s += 1
+                    if i == 5:
+                        break
+                temp = "<blockquote>" +temp+"</blockquote>"
+                xx = LeafNode("p", temp)
+                xxx= []
+                xx.value = text_to_textnodes(xx.value)
+                for a in xx.value:
+                   xxx.append(text_node_to_html_node(a))
+                xx.value = ""
+                for a in xxx:
+                    xx.value += a.to_html()
+                xx.value = xx.value.rstrip()
+
+            case BlockType.ORDERED_LIST:
+                temp = "<ol>"
+                for a in item.split("\n"):
+                    temp += "<li>"+a[2:]+"</li>"
+                temp = temp +"</ol>"
+                xx = LeafNode("p", temp)
+                xxx= []
+                xx.value = text_to_textnodes(xx.value)
+                for a in xx.value:
+                   xxx.append(text_node_to_html_node(a))
+                xx.value = ""
+                for a in xxx:
+                    xx.value += a.to_html()
+                xx.value = xx.value.rstrip()
+
+            case BlockType.UNORDERED_LIST:
+                temp = "<ul>"
+                for a in item.split("\n"):
+                    temp += "<li>"+a[2:]+"</li>"
+                temp = temp +"</ul>"
+                xx = LeafNode("p", temp)
+                xxx= []
+                xx.value = text_to_textnodes(xx.value)
+                for a in xx.value:
+                   xxx.append(text_node_to_html_node(a))
+                xx.value = ""
+                for a in xxx:
+                    xx.value += a.to_html()
+                xx.value = xx.value.rstrip()
+
+        result.children.append(xx)
+
+    return result
+
+
+md = """
+1. This is text
+2. of the heading
+"""
+print(markdown_to_html_node(md).to_html())
