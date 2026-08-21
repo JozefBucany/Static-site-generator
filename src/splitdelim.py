@@ -117,7 +117,7 @@ def markdown_to_html_node(markdown:str):
                         s += 1
                     if i == 5:
                         break
-                temp = f"<h{s}>" +temp[s:]+f"</h{s}>"
+                temp = f"<h{s}>" +temp[s+1:]+f"</h{s}>"
                 xx = LeafNode("p", temp)
                 xxx= []
                 xx.value = text_to_textnodes(xx.value)
@@ -139,14 +139,8 @@ def markdown_to_html_node(markdown:str):
             case BlockType.QUOTE:
                 temp = ""
                 for a in item.split("\n"):
-                    temp += a[1:]+" "
+                    temp += a[2:]+" "
                 temp = temp.rstrip(" ")
-                s = 0
-                for i in range (len(item)):
-                    if item[i] == "#":
-                        s += 1
-                    if i == 5:
-                        break
                 temp = "<blockquote>" +temp+"</blockquote>"
                 xx = LeafNode("p", temp)
                 xxx= []
@@ -161,7 +155,7 @@ def markdown_to_html_node(markdown:str):
             case BlockType.ORDERED_LIST:
                 temp = "<ol>"
                 for a in item.split("\n"):
-                    temp += "<li>"+a[2:]+"</li>"
+                    temp += "<li>"+a[3:]+"</li>"
                 temp = temp +"</ol>"
                 xx = LeafNode("p", temp)
                 xxx= []

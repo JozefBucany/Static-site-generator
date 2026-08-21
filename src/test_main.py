@@ -1,6 +1,7 @@
 import unittest
 
 from textnode import extract_markdown_images, extract_markdown_links
+from main import extract_title
 
 
 class TestTextNode(unittest.TestCase):
@@ -28,3 +29,13 @@ class TestTextNode(unittest.TestCase):
             "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
         )
         self.assertListEqual([("to boot dev", "https://www.boot.dev"), ("to youtube","https://www.youtube.com/@bootdotdev")], matches)
+
+    def test_extract_title(self):
+        match = extract_title("""
+asdf
+##  41233xcv
+
+#    654asd67z
+asdf
+            """)
+        self.assertEqual(match, "654asd67z")
