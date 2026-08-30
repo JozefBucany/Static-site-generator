@@ -132,7 +132,11 @@ def markdown_to_html_node(markdown:str):
                 temp = ""
                 for a in item.split("\n"):
                     if a != "```":
-                        temp += a+"\n"
+                        if a[0] == "`" and a[len(a)-1] == "`":
+                            temp += a[1:-1]
+                        else:
+                            temp += a
+                    temp += "\n"
                 temp = "<code>"+temp+"</code>"
                 xx = LeafNode("pre", temp)
 

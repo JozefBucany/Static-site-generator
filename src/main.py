@@ -1,6 +1,5 @@
 import os
 import shutil
-from tempfile import template
 
 from splitdelim import markdown_to_html_node
 
@@ -44,15 +43,19 @@ def generate_page(from_path:str, template_path:str, dest_path:str):
     with open(dest_path, mode="w") as f:
         f.write(template_file)
 
-
-
-
+def generate_pages_recursive(dir_path_content:str, template_path:str, dest_dir_path:str):
+    listdir = os.listdir(dir_path_content)
+    for item in listdir:
+        if os.path.isfile(dir_path_content+"/"+item) and item[-3:] == ".md":
+            generate_page(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item[:-3]+".html")
+        if os.path.isdir(dir_path_content+"/"+item):
+            os.mkdir(dest_dir_path+"/"+item)
+            generate_pages_recursive(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item)
 
 
 def main():
     copy_new("./static", "./public")
 
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
-
+    generate_pages_recursive("./content", "./template.html", "./public")
 
 main()
