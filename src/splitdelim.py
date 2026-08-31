@@ -1,6 +1,4 @@
 from enum import Enum
-from locale import CODESET
-from pickle import LIST
 
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import (

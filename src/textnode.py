@@ -1,6 +1,6 @@
-from pydoc import text
 import re
 from enum import Enum
+from pydoc import text
 
 from htmlnode import LeafNode, ParentNode
 
