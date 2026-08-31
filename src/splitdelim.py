@@ -189,10 +189,3 @@ def markdown_to_html_node(markdown:str):
         result.children.append(xx)
 
     return result
-
-
-md = """
-1. This is text
-2. of the heading
-"""
-print(markdown_to_html_node(md).to_html())

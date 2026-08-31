@@ -1,8 +1,13 @@
 import os
 import shutil
+import sys
 
 from splitdelim import markdown_to_html_node
 
+try:
+    basepath = sys.argv[1]
+except:
+    basepath = "/"
 
 def copydir(srcpath:str, destpath:str):
     listdir = os.listdir(srcpath)
@@ -29,7 +34,7 @@ def extract_title(markdown):
                 return item[1:].strip()
     raise Exception("No h1 heading found")
 
-def generate_page(from_path:str, template_path:str, dest_path:str):
+def generate_page(from_path:str, template_path:str, dest_path:str, webpath:str):
     print(f"Generating webpage from {from_path} to {dest_path} using template from {template_path}...")
     with open (from_path) as f:
         from_file = f.read()
@@ -40,22 +45,24 @@ def generate_page(from_path:str, template_path:str, dest_path:str):
     from_file = markd.to_html()
     template_file = template_file.replace("{{ Title }}", title)
     template_file = template_file.replace("{{ Content }}", from_file)
+    template_file = template_file.replace('href="/', f'href="{webpath}')
+    template_file = template_file.replace('src="/', f'src="{webpath}')
     with open(dest_path, mode="w") as f:
         f.write(template_file)
 
-def generate_pages_recursive(dir_path_content:str, template_path:str, dest_dir_path:str):
+def generate_pages_recursive(dir_path_content:str, template_path:str, dest_dir_path:str, webpath):
     listdir = os.listdir(dir_path_content)
     for item in listdir:
         if os.path.isfile(dir_path_content+"/"+item) and item[-3:] == ".md":
-            generate_page(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item[:-3]+".html")
+            generate_page(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item[:-3]+".html", webpath)
         if os.path.isdir(dir_path_content+"/"+item):
             os.mkdir(dest_dir_path+"/"+item)
-            generate_pages_recursive(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item)
-
+            generate_pages_recursive(dir_path_content+"/"+item, template_path, dest_dir_path+"/"+item, webpath)
 
 def main():
-    copy_new("./static", "./public")
+    copy_new("./static", "./docs")
 
-    generate_pages_recursive("./content", "./template.html", "./public")
+    generate_pages_recursive("./content", "./template.html", "./docs", basepath)
+
 
 main()
